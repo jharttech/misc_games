@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="25" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="6" nextobjectid="9">
+ <tileset firstgid="1" source="platformer.tsx"/>
+ <layer id="1" name="ground" width="25" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMAroB/iBWBAJ89HAfE4gZkbCHATsQXcTIYxuPrI92NQz4FBPTQwAcRsCDw==
+  </data>
+ </layer>
+ <layer id="2" name="ladders" width="25" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMApGwVAHAAfQAAE=
+  </data>
+ </layer>
+ <layer id="3" name="background" width="25" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMAoQQH6gHYAFqKDxKXEjsl4lCswhBWjQwQ4AzHQAzA==
+  </data>
+ </layer>
+ <layer id="4" name="goal" width="25" height="20">
+  <data encoding="base64" compression="zlib">
+   eJxjYBgFo2AUjIJRMAoGF5Cjgx2ydLCDngAAQ3gAPA==
+  </data>
+ </layer>
+ <objectgroup draworder="index" id="5" name="collectables">
+  <object id="1" gid="23" x="378.424" y="2315.52" width="128" height="128">
+   <properties>
+    <property name="bronze_point" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="7" gid="23" x="890.545" y="2160.97" width="128" height="128">
+   <properties>
+    <property name="bronze_point" type="int" value="1"/>
+   </properties>
+  </object>
+  <object id="3" gid="24" x="1648.12" y="2197.33" width="128" height="128">
+   <properties>
+    <property name="gold_point" type="int" value="5"/>
+   </properties>
+  </object>
+  <object id="8" gid="24" x="2487.52" y="1967.03" width="128" height="128">
+   <properties>
+    <property name="gold_point" type="int" value="5"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
