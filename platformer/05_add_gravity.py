@@ -11,6 +11,13 @@ SCREEN_TITLE = "Platformer"
 CHARACTER_SCALING = 0.5
 TILE_SCALING = 0.5
 
+# Player Constants
+PLAYER_MOVEMENT_SPEED = 5
+PLAYER_JUMP_SPEED = 20
+
+# Physics Constants
+GRAVITY = 1
+
 
 class MyGame(arcade.Window):
     """Main Application of class."""
@@ -26,6 +33,18 @@ class MyGame(arcade.Window):
 
         # Our Scene Object
         self.scene = None
+
+        # Separate variable that holds the player sprite
+        self.player_sprite = None
+
+        # Track the current state of what key is pressed
+        self.left_pressed = False
+        self.right_pressed = False
+        self.up_pressed = False
+        self.down_pressed = False
+
+        # Our physics engine
+        self.physics_engine = None
 
         arcade.set_background_color(arcade.csscolor.CORNFLOWER_BLUE)
 
@@ -72,6 +91,12 @@ class MyGame(arcade.Window):
             wall.position = coordinate
             self.scene.add_sprite("Walls", wall)
 
+        # Create the 'physics engine
+        # self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, self.scene.get_sprite_list("Walls"))
+        self.physics_engine = arcade.PhysicsEnginePlatformer(
+            self.player_sprite, gravity_constant=GRAVITY, walls=self.scene["Walls"]
+        )
+
     def on_draw(self):
         """Render the screen."""
 
@@ -83,6 +108,60 @@ class MyGame(arcade.Window):
 
         # Draw our Scene
         self.scene.draw()
+
+    def update_player_speed(self):
+
+        # Calculate speed based on the keys pressed
+        self.player_sprite.change_x = 0
+        self.player_sprite.change_y = 0
+
+        if self.up_pressed and not self.down_pressed:
+            if self.physics_engine.can_jump():
+                self.player_sprite.change_y = PLAYER_JUMP_SPEED
+        elif self.down_pressed and not self.up_pressed:
+            self.player_sprite.change_y = -PLAYER_JUMP_SPEED
+        if self.left_pressed and not self.right_pressed:
+            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+        elif self.right_pressed and not self.left_pressed:
+            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+
+    def on_update(self, delta_time):
+        """Movement and game logic"""
+
+        # Move the plyaer with the physics engine
+        self.physics_engine.update()
+
+    def on_key_press(self, key, modifiers):
+        """Called whenever a key is pressed."""
+
+        if key == arcade.key.UP:
+            self.up_pressed = True
+            self.update_player_speed()
+        elif key == arcade.key.DOWN:
+            self.down_pressed = True
+            self.update_player_speed()
+        elif key == arcade.key.LEFT:
+            self.left_pressed = True
+            self.update_player_speed()
+        elif key == arcade.key.RIGHT:
+            self.right_pressed = True
+            self.update_player_speed()
+
+    def on_key_release(self, key, modifiers):
+        """Called whenever a key is released"""
+
+        if key == arcade.key.UP:
+            self.up_pressed = False
+            self.update_player_speed()
+        elif key == arcade.key.DOWN:
+            self.down_pressed = False
+            self.update_player_speed()
+        elif key == arcade.key.LEFT:
+            self.left_pressed = False
+            self.update_player_speed()
+        elif key == arcade.key.RIGHT:
+            self.right_pressed = False
+            self.update_player_speed()
 
 
 def main():
