@@ -71,6 +71,12 @@ class MyGame(arcade.Window):
         # Reset score
         self.score = 0
 
+        # Reset obstacles velocity
+        self.object_velocity = -2
+
+        # Reset obstacle distance
+        self.space_between = 200
+
         # Separate variable that holds the player sprite
         self.player_list = arcade.SpriteList()
         self.obstacles_list = arcade.SpriteList(use_spatial_hash=True)
@@ -176,13 +182,13 @@ class MyGame(arcade.Window):
         elif self.timer > 20 and self.timer < 50:
             if self.timer > 25:
                 self.object_velocity = -4
-                self.space_between = 175
+                self.space_between = 190
                 if self.spawn_objects > .25:
                     self.obstacle_update()
         elif self.timer > 50:
             if self.timer > 52:
                 self.object_velocity = -6
-                self.space_between = 150
+                self.space_between = 175
                 if self.spawn_objects > .125:
                     self.obstacle_update()
 
