@@ -194,7 +194,7 @@ class MyGame(arcade.Window):
         elif self.timer > 50:
             if self.timer > 52:
                 self.object_velocity = -6
-                self.space_between = 175
+                self.space_between = 185
                 if self.spawn_objects > .125:
                     self.obstacle_update()
 
