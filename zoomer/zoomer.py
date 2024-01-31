@@ -1,13 +1,12 @@
-"""Platformer game using arcade and tiled"""
+"""Obstacle game using arcade and tiled"""
 
 import arcade
 import random
-import time
 
 # Constants
 SCREEN_WIDTH = 512
 SCREEN_HEIGHT = 650
-SCREEN_TITLE = "Platformer"
+SCREEN_TITLE = "Zoomer"
 
 # Constants used to scale our sprites from their original size
 CHARACTER_SCALING = 0.5
@@ -52,10 +51,17 @@ class MyGame(arcade.Window):
         # Create a game timer
         self.timer = 0
 
-        arcade.set_background_color(arcade.csscolor.GREEN)
+        #arcade.set_background_color(arcade.csscolor.GREEN)
+        self.background = None
+
+        #Set game sounds
+        self.explode = arcade.load_sound("assets/sounds/Explode.wav")
 
     def setup(self):
         """Set up the game here.  CAll this function to restart the game"""
+        # Set background image
+        self.background = arcade.load_texture(":resources:images/backgrounds/stars.png")
+
         # Separate variable that holds the player sprite
         self.player_list = arcade.SpriteList()
         self.obstacles_list = arcade.SpriteList(use_spatial_hash=True)
@@ -110,12 +116,21 @@ class MyGame(arcade.Window):
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, gravity_constant=GRAVITY, platforms=self.obstacles_list)
         #self.physics_engine_wall = arcade.PhysicsEngineSimple(walls=self.wall_list)
 
+    def create_explosion(self):
+        """Create the explosion animation"""
+        # Create an explosion sprite
+        pass
+        
+        
+
     def obstacle_update(self):
         # Create obstacles
-        self.obstacles_left = arcade.Sprite(
-            ":resources:images/topdown_tanks/treeGreen_large.png", TILE_SCALING
+        self.obstacles_left = arcade.Sprite(random.choice([
+            f":resources:images/space_shooter/meteorGrey_big{random.randint(1,3)}.png",
+            f":resources:images/space_shooter/meteorGrey_med{random.randint(1,2)}.png"]), TILE_SCALING
         )
-        self.obstacles_left.center_x = self.temp_obstacle_start + (random.randint(-30,30))
+        self.obstacles_left.center_x = self.temp_obstacle_start + (random.randint(-50,50))
+        self.obstacles_left.angle=random.randint(0,360)
         if self.obstacles_left.center_x < 32:
             self.obstacles_left.center_x = 32
         if self.obstacles_left.center_x > 300:
@@ -124,8 +139,9 @@ class MyGame(arcade.Window):
         self.obstacles_left.change_y = self.object_velocity
         self.obstacles_list.append(self.obstacles_left)
 
-        obstacles_right = arcade.Sprite(
-            ":resources:images/topdown_tanks/treeGreen_large.png", TILE_SCALING
+        obstacles_right = arcade.Sprite(random.choice([
+            f":resources:images/space_shooter/meteorGrey_big{random.randint(1,3)}.png",
+            f":resources:images/space_shooter/meteorGrey_med{random.randint(1,2)}.png"]), TILE_SCALING
         )
         obstacles_right.center_x = self.obstacles_left.center_x + 200
         obstacles_right.center_y = self.obstacles_left.center_y
@@ -140,6 +156,7 @@ class MyGame(arcade.Window):
 
         self.clear()
         # Code to draw the screen goes here
+        arcade.draw_lrwh_rectangle_textured(0,0,SCREEN_WIDTH,SCREEN_HEIGHT,self.background)
         self.obstacles_list.draw()
         self.player_list.draw()
 
@@ -151,10 +168,10 @@ class MyGame(arcade.Window):
         current_x = f"current: {self.obstacles_left.center_x}"
         obj_list = f"objs: {len(self.obstacles_list)}"
         obj_vel = f"objv: {self.object_velocity}"
-        arcade.draw_text(temp_x, 10, 10, arcade.csscolor.BLACK, 18)
-        arcade.draw_text(current_x, 10, 30, arcade.csscolor.BLACK, 18)
-        arcade.draw_text(obj_list, 10, 50, arcade.csscolor.BLACK, 18)
-        arcade.draw_text(obj_vel, 10, 70, arcade.csscolor.BLACK, 18)
+        arcade.draw_text(temp_x, 10, 10, arcade.csscolor.WHITE, 18)
+        arcade.draw_text(current_x, 10, 30, arcade.csscolor.WHITE, 18)
+        arcade.draw_text(obj_list, 10, 50, arcade.csscolor.WHITE, 18)
+        arcade.draw_text(obj_vel, 10, 70, arcade.csscolor.WHITE, 18)
 
 
     def update_player_speed(self):
@@ -176,13 +193,30 @@ class MyGame(arcade.Window):
         if self.timer < 20:
             if self.spawn_objects > self.object_velocity - self.object_velocity + 0.5:
                 self.obstacle_update()
-        elif self.timer > 20:
+        elif self.timer > 20 and self.timer < 50:
             if self.timer > 25:
                 self.object_velocity = -4
                 if self.spawn_objects > .25:
                     self.obstacle_update()
+        elif self.timer > 50:
+            if self.timer > 52:
+                self.object_velocity = -6
+                if self.spawn_objects > .125:
+                    self.obstacle_update()
+
         if self.obstacles_list[0].top < 0:
             self.obstacles_list.pop(0)
+
+        if arcade.check_for_collision_with_list(
+            self.player_sprite,
+            self.obstacles_list
+            ):
+            self.create_explosion()
+            arcade.play_sound(self.explode)
+            self.setup()
+
+
+
 
 
     def on_key_press(self, key, modifiers):
