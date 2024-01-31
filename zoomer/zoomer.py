@@ -77,6 +77,12 @@ class MyGame(arcade.Window):
         # Reset obstacle distance
         self.space_between = 200
 
+        # Reset timer
+        self.timer = 0
+
+        # Reset spawn objects time
+        self.spawn_objects = 0
+
         # Separate variable that holds the player sprite
         self.player_list = arcade.SpriteList()
         self.obstacles_list = arcade.SpriteList(use_spatial_hash=True)
