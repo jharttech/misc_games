@@ -256,6 +256,14 @@ class MyGame(arcade.View):
         if self.obstacles_list[0].top < 0:
             self.obstacles_list.pop(0)
 
+        if self.player_sprite.left < SCREEN_WIDTH - SCREEN_WIDTH:
+            self.player_sprite.change_x = 0
+            self.player_sprite.center_x = self.player_sprite.center_x + 10
+
+        if self.player_sprite.right > SCREEN_WIDTH:
+            self.player_sprite.change_x = 0
+            self.player_sprite.center_x = self.player_sprite.center_x - 10
+
         if arcade.check_for_collision_with_list(
             self.player_sprite, self.obstacles_list
         ):
