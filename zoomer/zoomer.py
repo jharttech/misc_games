@@ -19,14 +19,50 @@ PLAYER_THRUST = 1
 # Physics Constants
 GRAVITY = 1
 
+class MainMenu(arcade.View):
+    """Class that manages the 'menu' view."""
 
-class MyGame(arcade.Window):
+    def on_show_view(self):
+        """Called when switching to this view."""
+        self.background = arcade.load_texture(":resources:images/backgrounds/stars.png")
+        arcade.draw_lrwh_rectangle_textured(
+            0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, self.background
+        )
+
+    def on_draw(self):
+        """Draw the menu"""
+        self.clear()
+        line1 = f"Welcome to {SCREEN_TITLE}"
+        line2 = "Click to Start"
+        arcade.draw_text(
+            line1,
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2 + 30,
+            arcade.csscolor.WHITE,
+            font_size=30,
+            anchor_x="center",
+        )
+        arcade.draw_text(
+            line2,
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2 - 30,
+            arcade.csscolor.WHITE,
+            font_size = 30,
+            anchor_x = "center"
+        )
+    
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        """Use a mouse press to advance to the 'game' view."""
+        game_view = MyGame()
+        self.window.show_view(game_view)
+
+class MyGame(arcade.View):
     """Main Application of class."""
 
     def __init__(self):
 
         # Call the parent class and set up the window
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        super().__init__()
 
         # These are lists that keep track of our sprites. Each sprite should go into a list
         self.player_list = None
@@ -45,7 +81,7 @@ class MyGame(arcade.Window):
         # Set object velocity
         self.object_velocity = -2
 
-        # Set temp obstacle start locale 
+        # Set temp obstacle start locale
         self.temp_obstacle_start = SCREEN_WIDTH / 3
 
         # The GUI camera
@@ -57,16 +93,18 @@ class MyGame(arcade.Window):
         # Score
         self.score = 0
 
-        #arcade.set_background_color(arcade.csscolor.GREEN)
+        # Create player sprite
+        self.player_sprite = None
+
+        # arcade.set_background_color(arcade.csscolor.GREEN)
         self.background = None
 
-        #Set game sounds
+        # Set game sounds
         self.explode = arcade.load_sound("assets/sounds/Explode.wav")
 
     def setup(self):
         """Set up the game here.  CAll this function to restart the game"""
-        # Set background image
-        self.background = arcade.load_texture(":resources:images/backgrounds/stars.png")
+       
 
         # Reset score
         self.score = 0
@@ -83,6 +121,7 @@ class MyGame(arcade.Window):
         # Reset spawn objects time
         self.spawn_objects = 0
 
+
         # Separate variable that holds the player sprite
         self.player_list = arcade.SpriteList()
         self.obstacles_list = arcade.SpriteList(use_spatial_hash=True)
@@ -95,31 +134,41 @@ class MyGame(arcade.Window):
         self.player_sprite.center_y = 128
         self.player_list.append(self.player_sprite)
 
-        self.gui_camera = arcade.Camera(self.width, self.height)
-
+        self.gui_camera = arcade.Camera(SCREEN_WIDTH, SCREEN_HEIGHT)
 
         self.obstacle_update()
 
-            
         # Create physics engine
-        self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, gravity_constant=GRAVITY, platforms=self.obstacles_list)
-        #self.physics_engine_wall = arcade.PhysicsEngineSimple(walls=self.wall_list)
+        self.physics_engine = arcade.PhysicsEnginePlatformer(
+            self.player_sprite, gravity_constant=GRAVITY, platforms=self.obstacles_list
+        )
+        # self.physics_engine_wall = arcade.PhysicsEngineSimple(walls=self.wall_list)
+
+    def on_show_view(self):
+        self.setup()
+        # Set background image
+        self.background = arcade.load_texture(":resources:images/backgrounds/stars.png")
 
     def create_explosion(self):
         """Create the explosion animation"""
         # Create an explosion sprite
         pass
-        
-        
 
     def obstacle_update(self):
         # Create obstacles
-        self.obstacles_left = arcade.Sprite(random.choice([
-            f":resources:images/space_shooter/meteorGrey_big{random.randint(1,3)}.png",
-            f":resources:images/space_shooter/meteorGrey_med{random.randint(1,2)}.png"]), TILE_SCALING
+        self.obstacles_left = arcade.Sprite(
+            random.choice(
+                [
+                    f":resources:images/space_shooter/meteorGrey_big{random.randint(1,3)}.png",
+                    f":resources:images/space_shooter/meteorGrey_med{random.randint(1,2)}.png",
+                ]
+            ),
+            TILE_SCALING,
         )
-        self.obstacles_left.center_x = self.temp_obstacle_start + (random.randint(-60,60))
-        self.obstacles_left.angle=random.randint(0,360)
+        self.obstacles_left.center_x = self.temp_obstacle_start + (
+            random.randint(-60, 60)
+        )
+        self.obstacles_left.angle = random.randint(0, 360)
         if self.obstacles_left.center_x < 32:
             self.obstacles_left.center_x = 32
         if self.obstacles_left.center_x > 300:
@@ -128,9 +177,14 @@ class MyGame(arcade.Window):
         self.obstacles_left.change_y = self.object_velocity
         self.obstacles_list.append(self.obstacles_left)
 
-        obstacles_right = arcade.Sprite(random.choice([
-            f":resources:images/space_shooter/meteorGrey_big{random.randint(1,3)}.png",
-            f":resources:images/space_shooter/meteorGrey_med{random.randint(1,2)}.png"]), TILE_SCALING
+        obstacles_right = arcade.Sprite(
+            random.choice(
+                [
+                    f":resources:images/space_shooter/meteorGrey_big{random.randint(1,3)}.png",
+                    f":resources:images/space_shooter/meteorGrey_med{random.randint(1,2)}.png",
+                ]
+            ),
+            TILE_SCALING,
         )
         obstacles_right.center_x = self.obstacles_left.center_x + self.space_between
         obstacles_right.center_y = self.obstacles_left.center_y
@@ -145,14 +199,16 @@ class MyGame(arcade.Window):
 
         self.clear()
         # Code to draw the screen goes here
-        arcade.draw_lrwh_rectangle_textured(0,0,SCREEN_WIDTH,SCREEN_HEIGHT,self.background)
+        arcade.draw_lrwh_rectangle_textured(
+            0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, self.background
+        )
         self.obstacles_list.draw()
         self.player_list.draw()
 
-        #Activate our GUI Camera
+        # Activate our GUI Camera
         self.gui_camera.use()
 
-        #Draw info to screen
+        # Draw info to screen
         temp_x = f"temp: {self.temp_obstacle_start}"
         current_x = f"current: {self.obstacles_left.center_x}"
         obj_list = f"objs: {len(self.obstacles_list)}"
@@ -164,7 +220,6 @@ class MyGame(arcade.Window):
         arcade.draw_text(obj_vel, 10, 70, arcade.csscolor.WHITE, 18)
         arcade.draw_text(score, 10, 90, arcade.csscolor.WHITE, 18)
 
-
     def update_player_speed(self):
         self.player_sprite.change_x = 0
 
@@ -175,10 +230,10 @@ class MyGame(arcade.Window):
 
     def on_update(self, delta_time):
         """Movement and game logic"""
-        #Move the player with the physics engine
+        # Move the player with the physics engine
         self.player_sprite.change_y = PLAYER_THRUST
         self.physics_engine.update()
-        #self.physics_engine_wall.update()
+        # self.physics_engine_wall.update()
         self.score += delta_time
         self.spawn_objects += delta_time
         self.timer += delta_time
@@ -189,29 +244,25 @@ class MyGame(arcade.Window):
             if self.timer > 25:
                 self.object_velocity = -4
                 self.space_between = 190
-                if self.spawn_objects > .25:
+                if self.spawn_objects > 0.25:
                     self.obstacle_update()
         elif self.timer > 50:
             if self.timer > 52:
                 self.object_velocity = -6
                 self.space_between = 185
-                if self.spawn_objects > .125:
+                if self.spawn_objects > 0.125:
                     self.obstacle_update()
 
         if self.obstacles_list[0].top < 0:
             self.obstacles_list.pop(0)
 
         if arcade.check_for_collision_with_list(
-            self.player_sprite,
-            self.obstacles_list
-            ):
+            self.player_sprite, self.obstacles_list
+        ):
             self.create_explosion()
             arcade.play_sound(self.explode)
-            self.setup()
-
-
-
-
+            game_view = GameOverView()
+            self.window.show_view(game_view)
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.LEFT:
@@ -223,7 +274,7 @@ class MyGame(arcade.Window):
 
         if key == arcade.key.ESCAPE:
             quit()
-    
+
     def on_key_release(self, key, modifiers):
         if key == arcade.key.LEFT:
             self.left_pressed = False
@@ -233,11 +284,47 @@ class MyGame(arcade.Window):
             self.update_player_speed()
 
 
+class GameOverView(arcade.View):
+    """Class to manage the game overview"""
+
+    def on_show_view(self):
+        """Called when switching to this view"""
+        arcade.set_background_color(arcade.color.BLACK)
+
+    def on_draw(self):
+        """Draw the game overview"""
+        self.clear()
+        line1 = "GAME OVER"
+        line2 = "Click to Restart"
+        arcade.draw_text(
+            line1,
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2 + 30,
+            arcade.csscolor.WHITE,
+            30,
+            anchor_x="center",
+        )
+        arcade.draw_text(
+            line2,
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2 - 30,
+            arcade.csscolor.WHITE,
+            30,
+            anchor_x = "center"
+        )
+
+    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        """Use a mouse press to advance to the 'game' view."""
+        game_view = MyGame()
+        self.window.show_view(game_view)
+
+
 
 def main():
     """Main function"""
-    window = MyGame()
-    window.setup()
+    window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+    menu_view = MainMenu()
+    window.show_view(menu_view)
     arcade.run()
 
 
