@@ -39,6 +39,9 @@ class MyGame(arcade.Window):
         # set spawn_timer
         self.spawn_objects = 0.0
 
+        # set distance between obstacles
+        self.space_between = 200
+
         # Set object velocity
         self.object_velocity = -2
 
@@ -51,6 +54,9 @@ class MyGame(arcade.Window):
         # Create a game timer
         self.timer = 0
 
+        # Score
+        self.score = 0
+
         #arcade.set_background_color(arcade.csscolor.GREEN)
         self.background = None
 
@@ -61,6 +67,9 @@ class MyGame(arcade.Window):
         """Set up the game here.  CAll this function to restart the game"""
         # Set background image
         self.background = arcade.load_texture(":resources:images/backgrounds/stars.png")
+
+        # Reset score
+        self.score = 0
 
         # Separate variable that holds the player sprite
         self.player_list = arcade.SpriteList()
@@ -79,38 +88,6 @@ class MyGame(arcade.Window):
 
         self.obstacle_update()
 
-        
-
-
-        # Create the spikes using a loop NOT TILEMAP
-        # for y in range(0, SCREEN_HEIGHT + 64, 42):
-        #     wall_left = arcade.Sprite(
-        #         ":resources:images/topdown_tanks/treeGreen_large.png", TILE_SCALING
-        #     )
-        #     wall_left.center_x = SCREEN_WIDTH / 3 + (random.randint(-10,10))
-        #     wall_left.center_y = y
-        #     wall_left.change_y = -.5
-        #     self.wall_list.append(wall_left)
-
-        # for y in range(0, SCREEN_HEIGHT + 64, 42):
-        #     wall_right = arcade.Sprite(
-        #         ":resources:images/topdown_tanks/treeGreen_large.png", TILE_SCALING
-        #     )
-        #     wall_right.center_x = SCREEN_WIDTH - SCREEN_WIDTH / 3
-        #     wall_right.center_y = y
-        #     self.wall_list.append(wall_right)
-
-        # Put some crates on the ground
-        # This shows using a coordinate list to place sprites
-        #coordinate_list = [[512, 96], [256, 96], [768, 96]]
-
-        #for coordinate in coordinate_list:
-            # Add a crate on the ground
-        #    wall = arcade.Sprite(
-        #        "assets/images/Tiles/boxCrate_double.png", TILE_SCALING
-        #    )
-        #    wall.position = coordinate
-        #    self.wall_list.append(wall)
             
         # Create physics engine
         self.physics_engine = arcade.PhysicsEnginePlatformer(self.player_sprite, gravity_constant=GRAVITY, platforms=self.obstacles_list)
@@ -129,7 +106,7 @@ class MyGame(arcade.Window):
             f":resources:images/space_shooter/meteorGrey_big{random.randint(1,3)}.png",
             f":resources:images/space_shooter/meteorGrey_med{random.randint(1,2)}.png"]), TILE_SCALING
         )
-        self.obstacles_left.center_x = self.temp_obstacle_start + (random.randint(-50,50))
+        self.obstacles_left.center_x = self.temp_obstacle_start + (random.randint(-60,60))
         self.obstacles_left.angle=random.randint(0,360)
         if self.obstacles_left.center_x < 32:
             self.obstacles_left.center_x = 32
@@ -143,7 +120,7 @@ class MyGame(arcade.Window):
             f":resources:images/space_shooter/meteorGrey_big{random.randint(1,3)}.png",
             f":resources:images/space_shooter/meteorGrey_med{random.randint(1,2)}.png"]), TILE_SCALING
         )
-        obstacles_right.center_x = self.obstacles_left.center_x + 200
+        obstacles_right.center_x = self.obstacles_left.center_x + self.space_between
         obstacles_right.center_y = self.obstacles_left.center_y
         obstacles_right.change_y = self.obstacles_left.change_y
         self.obstacles_list.append(obstacles_right)
@@ -168,10 +145,12 @@ class MyGame(arcade.Window):
         current_x = f"current: {self.obstacles_left.center_x}"
         obj_list = f"objs: {len(self.obstacles_list)}"
         obj_vel = f"objv: {self.object_velocity}"
+        score = f"score: {int(self.score)}"
         arcade.draw_text(temp_x, 10, 10, arcade.csscolor.WHITE, 18)
         arcade.draw_text(current_x, 10, 30, arcade.csscolor.WHITE, 18)
         arcade.draw_text(obj_list, 10, 50, arcade.csscolor.WHITE, 18)
         arcade.draw_text(obj_vel, 10, 70, arcade.csscolor.WHITE, 18)
+        arcade.draw_text(score, 10, 90, arcade.csscolor.WHITE, 18)
 
 
     def update_player_speed(self):
@@ -188,6 +167,7 @@ class MyGame(arcade.Window):
         self.player_sprite.change_y = PLAYER_THRUST
         self.physics_engine.update()
         #self.physics_engine_wall.update()
+        self.score += delta_time
         self.spawn_objects += delta_time
         self.timer += delta_time
         if self.timer < 20:
@@ -196,11 +176,13 @@ class MyGame(arcade.Window):
         elif self.timer > 20 and self.timer < 50:
             if self.timer > 25:
                 self.object_velocity = -4
+                self.space_between = 175
                 if self.spawn_objects > .25:
                     self.obstacle_update()
         elif self.timer > 50:
             if self.timer > 52:
                 self.object_velocity = -6
+                self.space_between = 150
                 if self.spawn_objects > .125:
                     self.obstacle_update()
 
