@@ -19,21 +19,24 @@ PLAYER_THRUST = 1
 # Physics Constants
 GRAVITY = 1
 
+
 class MainMenu(arcade.View):
     """Class that manages the 'menu' view."""
 
     def on_show_view(self):
         """Called when switching to this view."""
         self.background = arcade.load_texture(":resources:images/backgrounds/stars.png")
-        arcade.draw_lrwh_rectangle_textured(
-            0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, self.background
-        )
 
     def on_draw(self):
         """Draw the menu"""
         self.clear()
         line1 = f"Welcome to {SCREEN_TITLE}"
-        line2 = "Click to Start"
+        line2 = "Press Spacebar to Start"
+        line3 = "Press Esc anytime to Quit"
+        arcade.draw_lrwh_rectangle_textured(
+            0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, self.background
+        )
+
         arcade.draw_text(
             line1,
             SCREEN_WIDTH / 2,
@@ -47,14 +50,27 @@ class MainMenu(arcade.View):
             SCREEN_WIDTH / 2,
             SCREEN_HEIGHT / 2 - 30,
             arcade.csscolor.WHITE,
-            font_size = 30,
-            anchor_x = "center"
+            font_size=30,
+            anchor_x="center",
         )
-    
-    def on_mouse_press(self, _x, _y, _button, _modifiers):
+        arcade.draw_text(
+            line3,
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2 - 90,
+            arcade.csscolor.WHITE,
+            font_size=30,
+            anchor_x="center",
+        )
+
+    def on_key_press(self, key, modifiers):
         """Use a mouse press to advance to the 'game' view."""
-        game_view = MyGame()
-        self.window.show_view(game_view)
+        if key == arcade.key.SPACE:
+            game_view = MyGame()
+            self.window.show_view(game_view)
+
+        if key == arcade.key.ESCAPE:
+            quit()
+
 
 class MyGame(arcade.View):
     """Main Application of class."""
@@ -104,7 +120,6 @@ class MyGame(arcade.View):
 
     def setup(self):
         """Set up the game here.  CAll this function to restart the game"""
-       
 
         # Reset score
         self.score = 0
@@ -120,7 +135,6 @@ class MyGame(arcade.View):
 
         # Reset spawn objects time
         self.spawn_objects = 0
-
 
         # Separate variable that holds the player sprite
         self.player_list = arcade.SpriteList()
@@ -267,10 +281,13 @@ class MyGame(arcade.View):
         if arcade.check_for_collision_with_list(
             self.player_sprite, self.obstacles_list
         ):
+            self.window.score = self.score
             self.create_explosion()
             arcade.play_sound(self.explode)
             game_view = GameOverView()
+            
             self.window.show_view(game_view)
+
 
     def on_key_press(self, key, modifiers):
         if key == arcade.key.LEFT:
@@ -292,18 +309,24 @@ class MyGame(arcade.View):
             self.update_player_speed()
 
 
+
 class GameOverView(arcade.View):
     """Class to manage the game overview"""
 
     def on_show_view(self):
         """Called when switching to this view"""
-        arcade.set_background_color(arcade.color.BLACK)
+        self.background = arcade.load_texture(":resources:images/backgrounds/stars.png")
 
     def on_draw(self):
         """Draw the game overview"""
         self.clear()
+        arcade.draw_lrwh_rectangle_textured(
+            0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, self.background
+        )
         line1 = "GAME OVER"
-        line2 = "Click to Restart"
+        line2 = "Press Spacebar to Restart"
+        line3 = "Press Esc to Quit"
+        line4 = f"Score: {round(self.window.score)}"
         arcade.draw_text(
             line1,
             SCREEN_WIDTH / 2,
@@ -318,14 +341,32 @@ class GameOverView(arcade.View):
             SCREEN_HEIGHT / 2 - 30,
             arcade.csscolor.WHITE,
             30,
-            anchor_x = "center"
+            anchor_x="center",
+        )
+        arcade.draw_text(
+            line3,
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT / 2 - 90,
+            arcade.csscolor.WHITE,
+            30,
+            anchor_x="center",
+        )
+        arcade.draw_text(
+            line4,
+            SCREEN_WIDTH / 2,
+            SCREEN_HEIGHT /2 - 150,
+            arcade.csscolor.WHITE,
+            30,
+            anchor_x="center"
         )
 
-    def on_mouse_press(self, _x, _y, _button, _modifiers):
+    def on_key_press(self, key, modifiers):
         """Use a mouse press to advance to the 'game' view."""
-        game_view = MyGame()
-        self.window.show_view(game_view)
-
+        if key == arcade.key.SPACE:
+            game_view = MyGame()
+            self.window.show_view(game_view)
+        if key == arcade.key.ESCAPE:
+            quit()
 
 
 def main():
